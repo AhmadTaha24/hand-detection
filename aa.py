@@ -52,5 +52,5 @@ def detection():
         cv2.imshow("keyboard",framekey)
         if cv2.waitKey(1)==ord('q'):
             break
-
+print("hello world")
 detection()
