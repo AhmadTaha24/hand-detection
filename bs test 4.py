@@ -3,12 +3,11 @@ from asyncio.windows_events import NULL
 from cv2 import imshow
 import numpy as np
 import cv2
-from PyQt5 import QtGui
 import pyautogui
 
 
-cap = cv2.VideoCapture(0)
-fgbg = cv2.createBackgroundSubtractorKNN(250)
+cap = cv2.VideoCapture(2)
+fgbg = cv2.createBackgroundSubtractorKNN(90)
 res =0
 i = 0
 while(True):
@@ -21,13 +20,14 @@ while(True):
      hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
 
-          #lower and upper range
+     #lower and upper range
      lower_blue = np.array([0,15,0])
      upper_blue = np.array([17,170,255])
 
           #masking
-     mask = cv2.inRange(hsv, lower_blue, upper_blue )
+     mask = cv2.inRange(hsv, lower_blue, upper_blue ) 
      mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
+     #compining backsub mask with hsv mask
      res = cv2.bitwise_and(fgmask,src2=mask)
      #res = cv2.bitwise_and(frame, frame,mask=fgmask)
      #res = cv2.bitwise_and(res, res,mask=mask)
@@ -41,16 +41,19 @@ while(True):
      cv2.drawContours(frame, [hull], -1, (0, 255, 255), 2)
      #
      moment = cv2.moments(hull)
+     #fixing no contour bug
+     m00 = moment['m00']
      if moment['m00'] == 0:
-          print("bug")
-          break
-     x_ = int(moment['m10']/moment['m00'])
-     y_ = int(moment['m01']*0.9/moment['m00'])
+          print("no contours")
+          m00 = 1
+     x_ = int(moment['m10']/m00)
+     y_ = int(moment['m01']*0.9/m00)
      cv2.circle(frame, (x_, y_), 10, (0,0,0), -1)
-     #
+     #fixing pyautogui mouse to corner bug
+     pyautogui.FAILSAFE = False
      #pyautogui.moveTo(x_*3, y_*2.25)
      #
-     cv2.imshow('fgmask', fgmask)
+     cv2.imshow('hsv mask', mask)
      cv2.imshow('frame',frame )
      cv2.imshow("res",res)
 
