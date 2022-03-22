@@ -24,7 +24,7 @@ while(True):
      lower_blue = np.array([0,15,0])
      upper_blue = np.array([17,170,255])
 
-          #masking
+     #masking
      mask = cv2.inRange(hsv, lower_blue, upper_blue ) 
      mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3,3), np.uint8))
      #compining backsub mask with hsv mask
@@ -32,8 +32,13 @@ while(True):
      #res = cv2.bitwise_and(frame, frame,mask=fgmask)
      #res = cv2.bitwise_and(res, res,mask=mask)
      #contour
+     print(res)
+     if np.sum(res) == 0:
+          print("debug")
+          continue
+          
      contours, hierarchy = cv2.findContours(res, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+     
      contours = max(contours, key=lambda x: cv2.contourArea(x))
      cv2.drawContours(frame, [contours], -1, (255,255,0), 2)
 
